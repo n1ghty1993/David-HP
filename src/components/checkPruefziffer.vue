@@ -5,23 +5,35 @@
       :rules="serialNumberRules"
       label="Seriennummer"
       required
+      :counter="12"
     ></v-text-field>
     <v-btn
       color="success"
-      :disabled="!valid"
+      :disabled="nummeredSN == ''"
       class="mr-2"
       @click="checkPruefziffer"
       >Check Prüfziffer</v-btn
     >
-    <v-btn color="info" @click="positionImAlphabet" class="mr-2"
+    <v-btn
+      color="info"
+      @click="positionImAlphabet"
+      class="mr-2"
+      :disabled="!valid"
       >Umwandeln von Buchstaben in Zahlen</v-btn
     >
     <v-btn color="error" @click="reset">Reset Form</v-btn>
 
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="successdialog">
       <v-card>
         <v-alert type="success" class="mb-0">
           Prüfziffer ist korrekt!
+        </v-alert>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="failedDialog">
+      <v-card>
+        <v-alert type="error" class="mb-0">
+          Prüfziffer ist nicht korrekt!
         </v-alert>
       </v-card>
     </v-dialog>
@@ -34,17 +46,18 @@ export default {
   data: () => ({
     valid: true,
     serialNumber: "",
+    nummeredSN: "",
     serialNumberRules: [
       v => !!v || "Seriennummer is required",
-      v => (v && v.length == 12) || "Seriennummer muss 12 Zeichen lang sein"
+      v => (v && v.length == 12) || "Seriennummer muss 12 Zeichen lang sein",
     ],
-    nummeredSN: "",
     initialvalue: 0,
     final: 0,
     quersumme: 0,
     rest: 0,
     checkSN: false,
-    dialog: false
+    successdialog: false,
+    failedDialog: false
   }),
   methods: {
     reset() {
@@ -109,7 +122,10 @@ export default {
       this.final = 7 - this.rest;
       if (this.final == this.nummeredSN[11]) {
         this.checkSN = true;
-        this.dialog = true;
+        this.successdialog = true;
+      }
+      else {
+        this.failedDialog = true;
       }
     }
   }
